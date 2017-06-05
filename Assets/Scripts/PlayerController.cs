@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour
                 m_LevelComplete.SetActive(true);
                 m_LevelComplete.transform.FindChild("Coins").GetComponent<Text>().text = m_Level.coinsCollected + "/" + m_Level.transform.FindChild("Coins").childCount + " Coins Collected";
                 m_LevelComplete.transform.FindChild("ReRun").GetComponent<Button>().onClick.AddListener(() => Respawn());
+                m_LevelComplete.transform.FindChild("NextLevel").GetComponent<Button>().onClick.AddListener(() => m_Level.NextLevel());
             }
 
             return;

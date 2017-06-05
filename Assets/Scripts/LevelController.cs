@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class LevelController : MonoBehaviour {
 
@@ -39,4 +40,16 @@ public class LevelController : MonoBehaviour {
         if(moving)
             transform.position += Vector3.left * 0.08f * multiplier;
 	}
+
+    public void NextLevel()
+    {
+
+
+        var nextScene = (int.Parse(SceneManager.GetActiveScene().name) + 1).ToString();
+
+        if(nextScene != null && Application.CanStreamedLevelBeLoaded(nextScene))
+        {
+            SceneManager.LoadScene(nextScene);
+        }
+    }
 }
