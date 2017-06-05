@@ -30,7 +30,7 @@ public class LevelController : MonoBehaviour {
 
 	// Update is called once per frame
 	void FixedUpdate () {
-
+        
         if (Camera.main.WorldToScreenPoint(goal.transform.position).x + 12 <= Camera.main.pixelWidth)
         {
             moving = false;

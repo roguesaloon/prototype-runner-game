@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody m_Rigidbody;
     private LevelController m_Level;
     private float m_TimeSinceGoalReached;
+    private Vector3 m_InitialPosition;
+    private Vector3 m_InitialCamPosition;
     private GameObject m_LevelComplete;
 
     private void Start()
@@ -18,7 +20,8 @@ public class PlayerController : MonoBehaviour
         m_Rigidbody = GetComponent<Rigidbody>();
         m_Level = GameObject.Find("Level").GetComponent<LevelController>();
         m_LevelComplete = GameObject.Find("Level Complete");
-
+        m_InitialPosition = transform.position;
+        m_InitialCamPosition = Camera.main.transform.position;
         Respawn();
     }
 
@@ -30,7 +33,7 @@ public class PlayerController : MonoBehaviour
             if (m_TimeSinceGoalReached > 0.3f)
             {
                 m_LevelComplete.SetActive(true);
-                m_LevelComplete.transform.FindChild("Coins").GetComponent<Text>().text = m_Level.coinsCollected + "/15 Coins Collected";
+                m_LevelComplete.transform.FindChild("Coins").GetComponent<Text>().text = m_Level.coinsCollected + "/" + m_Level.transform.FindChild("Coins").childCount + " Coins Collected";
                 m_LevelComplete.transform.FindChild("ReRun").GetComponent<Button>().onClick.AddListener(() => Respawn());
             }
 
@@ -54,10 +57,30 @@ public class PlayerController : MonoBehaviour
             m_Level.multiplier = 0.7f;
         }
 
-        if ((Camera.main.WorldToScreenPoint(transform.position).x >= Camera.main.pixelWidth * 0.5f))
+        if ((Camera.main.WorldToScreenPoint(transform.position).x >= Camera.main.pixelWidth * 0.5f) && m_Level.moving)
             m_Level.multiplier = 1.0f;
         else
             m_Rigidbody.AddForce(Vector3.right * 0.008f) ;
+
+        if((Camera.main.WorldToScreenPoint(transform.position).x >= Camera.main.pixelWidth * 0.5f) && m_Level.moving)
+        {
+            Camera.main.transform.position += Vector3.right * 0.05f;
+        }
+
+        if ((Camera.main.WorldToScreenPoint(transform.position).x >= Camera.main.pixelWidth * 0.66f) && m_Level.moving)
+        {
+            Camera.main.transform.position += Vector3.right * 0.1f;
+        }
+
+        if (m_Rigidbody.velocity.x < 0)
+        {
+            m_Rigidbody.velocity = new Vector3(0, m_Rigidbody.velocity.y, m_Rigidbody.velocity.z);
+        }
+
+        if(m_Rigidbody.velocity.x > 6)
+        {
+            m_Rigidbody.velocity = new Vector3(6, m_Rigidbody.velocity.y, m_Rigidbody.velocity.z);
+        }
 
 
     }
@@ -76,7 +99,8 @@ public class PlayerController : MonoBehaviour
         m_TimeSinceGoalReached = 0;
         m_Level.coinsCollected = 0;
         m_Rigidbody.velocity = Vector3.zero;
-        transform.position = new Vector3(-7, -3.5f, -0.5f);
+        Camera.main.transform.position = m_InitialCamPosition;
+        transform.position = m_InitialPosition;
     }
 
     private void OnCollisionStay(Collision collision)
