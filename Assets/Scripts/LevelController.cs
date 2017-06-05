@@ -5,20 +5,25 @@ using UnityEngine.UI;
 
 public class LevelController : MonoBehaviour {
 
+    [HideInInspector]
     public bool moving;
+    [HideInInspector]
     public float multiplier;
+    [HideInInspector]
     public int coinsCollected;
 
     private Canvas canvas;
     private Text coinsCollectedText;
+    private GameObject goal;
 
 	// Use this for initialization
 	void Start () {
         moving = true;
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         coinsCollectedText = canvas.transform.FindChild("CoinsCollected").GetComponent<Text>();
+        goal = transform.FindChild("Goal").gameObject;
 	}
-	
+
     void Update () {
         coinsCollectedText.text = "Coins Collected: " + coinsCollected;
     }
@@ -26,8 +31,10 @@ public class LevelController : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
 
-        if (transform.position.x <= -20)
-             moving = false;
+        if (Camera.main.WorldToScreenPoint(goal.transform.position).x + 12 <= Camera.main.pixelWidth)
+        {
+            moving = false;
+        }
 
         if(moving)
             transform.position += Vector3.left * 0.08f * multiplier;

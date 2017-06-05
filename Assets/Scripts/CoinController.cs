@@ -5,7 +5,7 @@ using UnityEngine;
 public class CoinController : MonoBehaviour {
 
     LevelController level;
-    new public Renderer renderer;
+    new private Renderer renderer;
 
 	// Use this for initialization
 	void Start ()

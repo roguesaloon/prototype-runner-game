@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
     {
         if (m_GoalReached)
         {
-            if(m_TimeSinceGoalReached > 0.3f)
+            if (m_TimeSinceGoalReached > 0.3f)
             {
                 m_LevelComplete.SetActive(true);
                 m_LevelComplete.transform.FindChild("Coins").GetComponent<Text>().text = m_Level.coinsCollected + "/15 Coins Collected";
@@ -39,15 +39,14 @@ public class PlayerController : MonoBehaviour
 
         if ((CrossPlatformInputManager.GetButtonDown("Jump") || Input.GetMouseButtonDown(0)) && !m_Jumping)
         {
-            m_Rigidbody.velocity += Vector3.up * 8;
+            m_Rigidbody.velocity += Vector3.up * 7.5f;
             m_Jumping = true;
         }
 
         if (!m_Jumping)
         {
             m_Animator.SetFloat("Forward", 1);
-            m_Rigidbody.AddForce(Vector3.right * 4);
-            m_Level.multiplier = 0.8f;
+            m_Rigidbody.AddForce(Vector3.right * 4);     
         }
         else
         {
@@ -55,7 +54,10 @@ public class PlayerController : MonoBehaviour
             m_Level.multiplier = 0.7f;
         }
 
-        m_Rigidbody.AddForce(Vector3.right * 0.01f) ;
+        if ((Camera.main.WorldToScreenPoint(transform.position).x >= Camera.main.pixelWidth * 0.5f))
+            m_Level.multiplier = 1.0f;
+        else
+            m_Rigidbody.AddForce(Vector3.right * 0.008f) ;
 
 
     }
@@ -69,7 +71,7 @@ public class PlayerController : MonoBehaviour
 
         var coins = m_Level.transform.FindChild("Coins").GetComponentsInChildren<CoinController>();
         foreach (var coin in coins)
-            coin.renderer.enabled = true;
+            coin.GetComponent<Renderer>().enabled = true;
 
         m_TimeSinceGoalReached = 0;
         m_Level.coinsCollected = 0;
