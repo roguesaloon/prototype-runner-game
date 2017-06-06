@@ -40,7 +40,7 @@ public class PlayerController : MonoBehaviour
             if (timeSinceGoalReached > 0.3f)
             {
                 levelComplete.SetActive(true);
-                levelComplete.transform.FindChild("Coins").GetComponent<Text>().text = level.coinsCollected + "/" + new List<CoinController>(m_Level.transform.FindChild("Coins").GetComponentsInChildren<CoinController>()).FindAll(i => i.gameObject.activeSelf).Count + " Coins Collected";
+                levelComplete.transform.FindChild("Coins").GetComponent<Text>().text = level.coinsCollected + "/" + new List<CoinController>(level.transform.FindChild("Coins").GetComponentsInChildren<CoinController>()).FindAll(i => i.gameObject.activeSelf).Count + " Coins Collected";
                 levelComplete.transform.FindChild("ReRun").GetComponent<Button>().onClick.AddListener(() => Respawn());
                 levelComplete.transform.FindChild("NextLevel").GetComponent<Button>().onClick.AddListener(() => level.NextLevel());
             }
