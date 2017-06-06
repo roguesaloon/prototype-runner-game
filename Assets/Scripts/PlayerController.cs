@@ -8,7 +8,9 @@ public class PlayerController : MonoBehaviour
 {
     private bool jumping;       
     private Animator animator;
+#pragma warning disable 0109
     private new Rigidbody rigidbody;
+#pragma warning restore 0109
     private LevelController level;
 
     private void Start()

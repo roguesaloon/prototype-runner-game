@@ -5,10 +5,11 @@ using UnityEngine;
 public class CoinController : MonoBehaviour {
 
     LevelController level;
+#pragma warning disable 0109
     private new Renderer renderer;
-
-	// Use this for initialization
-	void Start ()
+#pragma warning restore 0109
+    // Use this for initialization
+    void Start ()
     {
         level = GameObject.Find("Level").GetComponent<LevelController>();
 
