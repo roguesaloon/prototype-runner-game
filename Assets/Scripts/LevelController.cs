@@ -16,13 +16,15 @@ public class LevelController : MonoBehaviour {
     private Canvas canvas;
     private Text coinsCollectedText;
     private GameObject goal;
+    private AsyncOperation loadNextLevel;
 
 	// Use this for initialization
 	void Start () {
         moving = true;
-        canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        canvas = GameObject.FindObjectOfType<Canvas>().GetComponent<Canvas>();
         coinsCollectedText = canvas.transform.FindChild("CoinsCollected").GetComponent<Text>();
         goal = transform.FindChild("Goal").gameObject;
+        loadNextLevel = LoadNextLevel();
 	}
 
     void Update () {
@@ -41,15 +43,23 @@ public class LevelController : MonoBehaviour {
             transform.position += Vector3.left * 0.08f * multiplier;
 	}
 
-    public void NextLevel()
+    private static AsyncOperation LoadNextLevel()
     {
-
-
         var nextScene = (int.Parse(SceneManager.GetActiveScene().name) + 1).ToString();
 
-        if(nextScene != null && Application.CanStreamedLevelBeLoaded(nextScene))
+        if (Application.CanStreamedLevelBeLoaded(nextScene))
         {
-            SceneManager.LoadScene(nextScene);
+            var loadScene = SceneManager.LoadSceneAsync(nextScene, LoadSceneMode.Single);
+            loadScene.allowSceneActivation = false;
+            return loadScene;
         }
+
+        return null;
+    }
+
+    public void NextLevel()
+    {
+        if(loadNextLevel != null)
+            loadNextLevel.allowSceneActivation = true;
     }
 }
