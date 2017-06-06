@@ -6,29 +6,28 @@ using UnityStandardAssets.CrossPlatformInput;
 
 public class PlayerController : MonoBehaviour
 {
-    /* Drop m_Naming Convention */
-    private bool m_Jumping;       
-    private Animator m_Animator;
-    private Rigidbody m_Rigidbody;
-    private LevelController m_Level;
+    private bool jumping;       
+    private Animator animator;
+    private new Rigidbody rigidbody;
+    private LevelController level;
 
     /* Move to Level Class */
-    private bool m_GoalReached;
-    private float m_TimeSinceGoalReached;
-    private Vector3 m_InitialPosition;
-    private Vector3 m_InitialCamPosition;
-    private GameObject m_LevelComplete;
+    private bool goalReached;
+    private float timeSinceGoalReached;
+    private Vector3 initialPosition;
+    private Vector3 initialCamPosition;
+    private GameObject levelComplete;
 
     private void Start()
     {
-        m_Animator = GetComponent<Animator>();
-        m_Rigidbody = GetComponent<Rigidbody>();
-        m_Level = GameObject.Find("Level").GetComponent<LevelController>();
+        animator = GetComponent<Animator>();
+        rigidbody = GetComponent<Rigidbody>();
+        level = GameObject.Find("Level").GetComponent<LevelController>();
 
         /* Move to Level Class */
-        m_LevelComplete = GameObject.Find("Level Complete");
-        m_InitialPosition = transform.position;
-        m_InitialCamPosition = Camera.main.transform.position;
+        levelComplete = GameObject.Find("Level Complete");
+        initialPosition = transform.position;
+        initialCamPosition = Camera.main.transform.position;
         Respawn();
     }
 
@@ -36,60 +35,60 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         /* Move to Level Class */
-        if (m_GoalReached)
+        if (goalReached)
         {
-            if (m_TimeSinceGoalReached > 0.3f)
+            if (timeSinceGoalReached > 0.3f)
             {
-                m_LevelComplete.SetActive(true);
-                m_LevelComplete.transform.FindChild("Coins").GetComponent<Text>().text = m_Level.coinsCollected + "/" + new List<CoinController>(m_Level.transform.FindChild("Coins").GetComponentsInChildren<CoinController>()).FindAll(i => i.gameObject.activeSelf).Count + " Coins Collected";
-                m_LevelComplete.transform.FindChild("ReRun").GetComponent<Button>().onClick.AddListener(() => Respawn());
-                m_LevelComplete.transform.FindChild("NextLevel").GetComponent<Button>().onClick.AddListener(() => m_Level.NextLevel());
+                levelComplete.SetActive(true);
+                levelComplete.transform.FindChild("Coins").GetComponent<Text>().text = level.coinsCollected + "/" + new List<CoinController>(m_Level.transform.FindChild("Coins").GetComponentsInChildren<CoinController>()).FindAll(i => i.gameObject.activeSelf).Count + " Coins Collected";
+                levelComplete.transform.FindChild("ReRun").GetComponent<Button>().onClick.AddListener(() => Respawn());
+                levelComplete.transform.FindChild("NextLevel").GetComponent<Button>().onClick.AddListener(() => level.NextLevel());
             }
 
             return;
         }
 
-        if ((CrossPlatformInputManager.GetButtonDown("Jump") || Input.GetMouseButtonDown(0)) && !m_Jumping)
+        if ((CrossPlatformInputManager.GetButtonDown("Jump") || Input.GetMouseButtonDown(0)) && !jumping)
         {
-            m_Rigidbody.velocity += Vector3.up * 7.5f;
-            m_Jumping = true;
+            rigidbody.velocity += Vector3.up * 7.5f;
+            jumping = true;
         }
 
-        if (!m_Jumping)
+        if (!jumping)
         {
-            m_Animator.SetFloat("Forward", 1);
-            m_Rigidbody.AddForce(Vector3.right * 4);     
+            animator.SetFloat("Forward", 1);
+            rigidbody.AddForce(Vector3.right * 4);     
         }
         else
         {
-            m_Animator.SetFloat("Forward", 0);
-            m_Level.multiplier = 0.7f;
+            animator.SetFloat("Forward", 0);
+            level.multiplier = 0.7f;
         }
 
         /* Move to Level Class */
-        if ((Camera.main.WorldToScreenPoint(transform.position).x >= Camera.main.pixelWidth * 0.66f) && m_Level.moving)
+        if ((Camera.main.WorldToScreenPoint(transform.position).x >= Camera.main.pixelWidth * 0.66f) && level.moving)
         {
-            m_Level.multiplier = 1.5f;
+            level.multiplier = 1.5f;
             Camera.main.transform.position += Vector3.right * 0.07f;
         }
-        else if ((Camera.main.WorldToScreenPoint(transform.position).x >= Camera.main.pixelWidth * 0.5f) && m_Level.moving)
+        else if ((Camera.main.WorldToScreenPoint(transform.position).x >= Camera.main.pixelWidth * 0.5f) && level.moving)
         {
-            m_Level.multiplier = 1.0f;
+            level.multiplier = 1.0f;
             Camera.main.transform.position += Vector3.right * 0.05f;
         }
         else
         {
-            m_Rigidbody.AddForce(Vector3.right * 0.008f);
+            rigidbody.AddForce(Vector3.right * 0.008f);
         }
 
-        if (m_Rigidbody.velocity.x < 0)
+        if (rigidbody.velocity.x < 0)
         {
-            m_Rigidbody.velocity = new Vector3(0, m_Rigidbody.velocity.y, m_Rigidbody.velocity.z);
+            rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, rigidbody.velocity.z);
         }
 
-        if(m_Rigidbody.velocity.x > 6)
+        if(rigidbody.velocity.x > 6)
         {
-            m_Rigidbody.velocity = new Vector3(6, m_Rigidbody.velocity.y, m_Rigidbody.velocity.z);
+            rigidbody.velocity = new Vector3(6, rigidbody.velocity.y, rigidbody.velocity.z);
         }
 
 
@@ -98,41 +97,41 @@ public class PlayerController : MonoBehaviour
     /* Move to Level Class */
     private void Respawn()
     {
-        m_LevelComplete.SetActive(false);
-        m_Level.transform.position = new Vector3(0.6f, -0.5f, -0.4f);
-        m_Level.moving = true;
-        m_GoalReached = false;
+        levelComplete.SetActive(false);
+        level.transform.position = new Vector3(0.6f, -0.5f, -0.4f);
+        level.moving = true;
+        goalReached = false;
 
-        var coins = m_Level.transform.FindChild("Coins").GetComponentsInChildren<CoinController>();
+        var coins = level.transform.FindChild("Coins").GetComponentsInChildren<CoinController>();
         foreach (var coin in coins)
             coin.GetComponent<Renderer>().enabled = true;
 
         
-        m_TimeSinceGoalReached = 0;
-        m_Level.coinsCollected = 0;
-        m_Level.multiplier = 0;
-        m_Rigidbody.velocity = Vector3.zero;
-        m_Rigidbody.angularVelocity = Vector3.zero;
-        Camera.main.transform.position = m_InitialCamPosition;
-        transform.position = m_InitialPosition;
+        timeSinceGoalReached = 0;
+        level.coinsCollected = 0;
+        level.multiplier = 0;
+        rigidbody.velocity = Vector3.zero;
+        rigidbody.angularVelocity = Vector3.zero;
+        Camera.main.transform.position = initialCamPosition;
+        transform.position = initialPosition;
 
     }
 
     private void OnCollisionStay(Collision collision)
     {
         if(collision.gameObject.tag == "Goal")
-            m_TimeSinceGoalReached += Time.deltaTime;
+            timeSinceGoalReached += Time.deltaTime;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
        if(collision.gameObject.tag == "Ground")
-           m_Jumping = false;
+           jumping = false;
 
         if (collision.gameObject.tag == "Goal")
         {
-            m_Animator.SetFloat("Forward", 0);
-            m_GoalReached = true;
+            animator.SetFloat("Forward", 0);
+            goalReached = true;
         }
 
        if(collision.gameObject.tag == "Respawn")
