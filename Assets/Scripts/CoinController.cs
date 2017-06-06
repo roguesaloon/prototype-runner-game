@@ -5,17 +5,14 @@ using UnityEngine;
 public class CoinController : MonoBehaviour {
 
     LevelController level;
-    new private Renderer renderer;
+    private new Renderer renderer;
 
 	// Use this for initialization
 	void Start ()
     {
-
         level = GameObject.Find("Level").GetComponent<LevelController>();
 
         renderer = GetComponent<Renderer>();
-
-
     }
 	
 	// Update is called once per frame

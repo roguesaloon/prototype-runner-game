@@ -6,10 +6,14 @@ using UnityStandardAssets.CrossPlatformInput;
 
 public class PlayerController : MonoBehaviour
 {
-    private bool m_Jumping, m_GoalReached;       
+    /* Drop m_Naming Convention */
+    private bool m_Jumping;       
     private Animator m_Animator;
     private Rigidbody m_Rigidbody;
     private LevelController m_Level;
+
+    /* Move to Level Class */
+    private bool m_GoalReached;
     private float m_TimeSinceGoalReached;
     private Vector3 m_InitialPosition;
     private Vector3 m_InitialCamPosition;
@@ -20,6 +24,8 @@ public class PlayerController : MonoBehaviour
         m_Animator = GetComponent<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
         m_Level = GameObject.Find("Level").GetComponent<LevelController>();
+
+        /* Move to Level Class */
         m_LevelComplete = GameObject.Find("Level Complete");
         m_InitialPosition = transform.position;
         m_InitialCamPosition = Camera.main.transform.position;
@@ -29,6 +35,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        /* Move to Level Class */
         if (m_GoalReached)
         {
             if (m_TimeSinceGoalReached > 0.3f)
@@ -59,6 +66,7 @@ public class PlayerController : MonoBehaviour
             m_Level.multiplier = 0.7f;
         }
 
+        /* Move to Level Class */
         if ((Camera.main.WorldToScreenPoint(transform.position).x >= Camera.main.pixelWidth * 0.66f) && m_Level.moving)
         {
             m_Level.multiplier = 1.5f;
@@ -87,6 +95,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    /* Move to Level Class */
     private void Respawn()
     {
         m_LevelComplete.SetActive(false);
