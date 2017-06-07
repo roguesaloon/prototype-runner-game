@@ -44,6 +44,8 @@ public class LevelController : MonoBehaviour {
         else
         {
             isNextLevelMenuScreen = false;
+            Camera.main.cullingMask = 0;
+            GameObject.Find("UICanvas").SetActive(false);
             SceneManager.LoadSceneAsync("LevelSelect");
         }
     }
@@ -52,6 +54,8 @@ public class LevelController : MonoBehaviour {
     void Start () {
 
         SetNextLevel(ref nextLevel);
+
+        if (Camera.main.cullingMask == 0) return;
 
         moving = true;
         canvas = GameObject.Find("UICanvas").GetComponent<Canvas>();
@@ -70,6 +74,9 @@ public class LevelController : MonoBehaviour {
     }
 
     void Update () {
+
+        if (Camera.main.cullingMask == 0) return;
+
         coinsCollectedText.text = "Coins Collected: " + coinsCollected;
 
         if (goalReached && timeSinceGoalReached > 0.3f)
@@ -101,19 +108,15 @@ public class LevelController : MonoBehaviour {
         {
             Camera.main.transform.position += 2 * Vector3.left;
         }
-    }
 
-	// Update is called once per frame
-	void FixedUpdate () {
-        
         if (Camera.main.WorldToScreenPoint(goal.transform.position).x + 50 <= Camera.main.pixelWidth)
         {
             moving = false;
         }
 
-        if(moving)
+        if (moving)
             transform.position += Vector3.left * 0.08f * multiplier;
-	}
+    }
 
     private static AsyncOperation LoadLevelInBackground(string level)
     {
@@ -133,9 +136,7 @@ public class LevelController : MonoBehaviour {
             isNextLevelMenuScreen = (bool)isMenuScreen;
 
         if (nextLevel != null)
-        {
             nextLevel.allowSceneActivation = true;
-        }
     }
 
     public void Respawn()
