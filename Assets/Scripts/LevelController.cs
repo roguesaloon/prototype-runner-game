@@ -16,7 +16,10 @@ public class LevelController : MonoBehaviour {
     private Canvas canvas;
     private Text coinsCollectedText;
     private GameObject goal;
-    private AsyncOperation loadNextLevel;
+
+
+    private AsyncOperation nextLevel;
+    private static bool isNextLevelMenuScreen = false;
 
     private Vector3 initialPlayerPosition;
     private Vector3 initialCamPosition;
@@ -26,13 +29,28 @@ public class LevelController : MonoBehaviour {
     public bool goalReached;
     public float timeSinceGoalReached;
 
+    void DetermineNextLevel()
+    {
+        if (!isNextLevelMenuScreen)
+        {
+            nextLevel = LoadLevelInBackground((int.Parse(SceneManager.GetActiveScene().name) + 1).ToString());
+        }
+        else
+        {
+            isNextLevelMenuScreen = false;
+            SceneManager.LoadSceneAsync("LevelSelect");
+        }
+    }
+
     // Use this for initialization
     void Start () {
+
+        DetermineNextLevel();
+
         moving = true;
-        canvas = GameObject.FindObjectOfType<Canvas>().GetComponent<Canvas>();
+        canvas = GameObject.Find("UICanvas").GetComponent<Canvas>();
         coinsCollectedText = canvas.transform.FindChild("CoinsCollected").GetComponent<Text>();
         goal = transform.FindChild("Goal").gameObject;
-        loadNextLevel = LoadNextLevel();
 
         levelComplete = GameObject.Find("Level Complete");
         playerBody = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>();
@@ -50,31 +68,42 @@ public class LevelController : MonoBehaviour {
             {
                 levelComplete.SetActive(true);
                 levelComplete.transform.FindChild("Coins").GetComponent<Text>().text = coinsCollected + "/" + new List<CoinController>(transform.FindChild("Coins").GetComponentsInChildren<CoinController>()).FindAll(i => i.gameObject.activeSelf).Count + " Coins Collected";
-                levelComplete.transform.FindChild("ReRun").GetComponent<Button>().onClick.AddListener(() => Respawn());
-                levelComplete.transform.FindChild("NextLevel").GetComponent<Button>().onClick.AddListener(() => NextLevel());
+                levelComplete.transform.FindChild("ReRun").GetComponent<Button>().onClick.AddListener(() => goalReached = false);
+                levelComplete.transform.FindChild("NextLevel").GetComponent<Button>().onClick.AddListener(() => GotoNextLevel());
+                levelComplete.transform.FindChild("Back").GetComponent<Button>().onClick.AddListener(() => { isNextLevelMenuScreen = true;  GotoNextLevel();  });
             }
         }
 
         if ((Camera.main.WorldToScreenPoint(playerBody.transform.position).x >= Camera.main.pixelWidth * 0.66f) && moving)
         {
             multiplier = 1.5f;
-            Camera.main.transform.position += Vector3.right * 0.07f;
+            Camera.main.transform.position += Vector3.right * 0.14f;
         }
         else if ((Camera.main.WorldToScreenPoint(playerBody.transform.position).x >= Camera.main.pixelWidth * 0.5f) && moving)
         {
             multiplier = 1.0f;
-            Camera.main.transform.position += Vector3.right * 0.05f;
+            Camera.main.transform.position += Vector3.right * 0.10f;
         }
         else
         {
             playerBody.AddForce(Vector3.right * 0.008f);
+        }
+
+        if ((Camera.main.WorldToScreenPoint(playerBody.transform.position).x >= Camera.main.pixelWidth * 0.7) && moving)
+        {
+            Camera.main.transform.position += 2 * Vector3.right;
+        }
+
+        if ((Camera.main.WorldToScreenPoint(playerBody.transform.position).x <= Camera.main.pixelWidth - (Camera.main.pixelWidth * 0.7)) && moving)
+        {
+            Camera.main.transform.position += 2 * Vector3.left;
         }
     }
 
 	// Update is called once per frame
 	void FixedUpdate () {
         
-        if (Camera.main.WorldToScreenPoint(goal.transform.position).x + 12 <= Camera.main.pixelWidth)
+        if (Camera.main.WorldToScreenPoint(goal.transform.position).x + 50 <= Camera.main.pixelWidth)
         {
             moving = false;
         }
@@ -83,13 +112,11 @@ public class LevelController : MonoBehaviour {
             transform.position += Vector3.left * 0.08f * multiplier;
 	}
 
-    private static AsyncOperation LoadNextLevel()
+    private static AsyncOperation LoadLevelInBackground(string level)
     {
-        var nextScene = (int.Parse(SceneManager.GetActiveScene().name) + 1).ToString();
-
-        if (Application.CanStreamedLevelBeLoaded(nextScene))
+        if (Application.CanStreamedLevelBeLoaded(level))
         {
-            var loadScene = SceneManager.LoadSceneAsync(nextScene, LoadSceneMode.Single);
+            var loadScene = SceneManager.LoadSceneAsync(level);
             loadScene.allowSceneActivation = false;
             return loadScene;
         }
@@ -97,10 +124,15 @@ public class LevelController : MonoBehaviour {
         return null;
     }
 
-    public void NextLevel()
+    public bool GotoNextLevel()
     {
-        if(loadNextLevel != null)
-            loadNextLevel.allowSceneActivation = true;
+        if (nextLevel != null)
+        {
+            nextLevel.allowSceneActivation = true;
+            return true;
+        }
+
+        return false;
     }
 
     public void Respawn()

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class CoinController : MonoBehaviour {
@@ -8,10 +9,12 @@ public class CoinController : MonoBehaviour {
 #pragma warning disable 0109
     private new Renderer renderer;
 #pragma warning restore 0109
+
     // Use this for initialization
     void Start ()
     {
-        level = GameObject.Find("Level").GetComponent<LevelController>();
+        if(GameObject.Find("Level"))
+            level = GameObject.Find("Level").GetComponent<LevelController>();
 
         renderer = GetComponent<Renderer>();
     }
