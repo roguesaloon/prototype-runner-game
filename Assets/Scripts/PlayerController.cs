@@ -65,8 +65,10 @@ public class PlayerController : MonoBehaviour
 
         if (collision.gameObject.tag == "Goal")
         {
+            rigidbody.velocity = Vector3.zero;
             animator.SetFloat("Forward", 0);
             level.goalReached = true;
+            level.levelComplete.transform.FindChild("Coins").GetComponent<Text>().text = level.coinsCollected + "/" + new List<CoinController>(level.transform.FindChild("Coins").GetComponentsInChildren<CoinController>()).FindAll(i => i.gameObject.activeSelf).Count + " Coins Collected";
         }
 
        if(collision.gameObject.tag == "Respawn")

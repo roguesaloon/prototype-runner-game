@@ -12,28 +12,34 @@ public class LevelController : MonoBehaviour {
     public float multiplier;
     [HideInInspector]
     public int coinsCollected;
+    [HideInInspector]
+    public bool goalReached;
+    [HideInInspector]
+    public float timeSinceGoalReached;
+    [HideInInspector]
+    public GameObject levelComplete;
 
     private Canvas canvas;
     private Text coinsCollectedText;
     private GameObject goal;
-
 
     private AsyncOperation nextLevel;
     private static bool isNextLevelMenuScreen = false;
 
     private Vector3 initialPlayerPosition;
     private Vector3 initialCamPosition;
-    private GameObject levelComplete;
     private Rigidbody playerBody;
 
-    public bool goalReached;
-    public float timeSinceGoalReached;
 
-    void DetermineNextLevel()
+
+    private static void SetNextLevel(ref AsyncOperation nextLevel)
     {
         if (!isNextLevelMenuScreen)
         {
             nextLevel = LoadLevelInBackground((int.Parse(SceneManager.GetActiveScene().name) + 1).ToString());
+
+            if (nextLevel == null)
+                nextLevel = LoadLevelInBackground(SceneManager.GetActiveScene().name);
         }
         else
         {
@@ -45,7 +51,7 @@ public class LevelController : MonoBehaviour {
     // Use this for initialization
     void Start () {
 
-        DetermineNextLevel();
+        SetNextLevel(ref nextLevel);
 
         moving = true;
         canvas = GameObject.Find("UICanvas").GetComponent<Canvas>();
@@ -53,6 +59,10 @@ public class LevelController : MonoBehaviour {
         goal = transform.FindChild("Goal").gameObject;
 
         levelComplete = GameObject.Find("Level Complete");
+        levelComplete.transform.FindChild("ReRun").GetComponent<Button>().onClick.AddListener(() => Respawn());
+        levelComplete.transform.FindChild("NextLevel").GetComponent<Button>().onClick.AddListener(() => GotoNextLevel(ref nextLevel));
+        levelComplete.transform.FindChild("Back").GetComponent<Button>().onClick.AddListener(() => GotoNextLevel(ref nextLevel, true));
+
         playerBody = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>();
         initialPlayerPosition = playerBody.transform.position;
         initialCamPosition = Camera.main.transform.position;
@@ -62,16 +72,9 @@ public class LevelController : MonoBehaviour {
     void Update () {
         coinsCollectedText.text = "Coins Collected: " + coinsCollected;
 
-        if (goalReached)
+        if (goalReached && timeSinceGoalReached > 0.3f)
         {
-            if (timeSinceGoalReached > 0.3f)
-            {
                 levelComplete.SetActive(true);
-                levelComplete.transform.FindChild("Coins").GetComponent<Text>().text = coinsCollected + "/" + new List<CoinController>(transform.FindChild("Coins").GetComponentsInChildren<CoinController>()).FindAll(i => i.gameObject.activeSelf).Count + " Coins Collected";
-                levelComplete.transform.FindChild("ReRun").GetComponent<Button>().onClick.AddListener(() => goalReached = false);
-                levelComplete.transform.FindChild("NextLevel").GetComponent<Button>().onClick.AddListener(() => GotoNextLevel());
-                levelComplete.transform.FindChild("Back").GetComponent<Button>().onClick.AddListener(() => { isNextLevelMenuScreen = true;  GotoNextLevel();  });
-            }
         }
 
         if ((Camera.main.WorldToScreenPoint(playerBody.transform.position).x >= Camera.main.pixelWidth * 0.66f) && moving)
@@ -124,15 +127,15 @@ public class LevelController : MonoBehaviour {
         return null;
     }
 
-    public bool GotoNextLevel()
+    public static void GotoNextLevel(ref AsyncOperation nextLevel, bool? isMenuScreen = null)
     {
+        if (isMenuScreen != null)
+            isNextLevelMenuScreen = (bool)isMenuScreen;
+
         if (nextLevel != null)
         {
             nextLevel.allowSceneActivation = true;
-            return true;
         }
-
-        return false;
     }
 
     public void Respawn()
