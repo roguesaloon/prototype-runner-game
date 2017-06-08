@@ -109,7 +109,7 @@ public class LevelController : MonoBehaviour {
             Camera.main.transform.position += 2 * Vector3.left;
         }
 
-        if (Camera.main.WorldToScreenPoint(goal.transform.position).x + 50 <= Camera.main.pixelWidth)
+        if (Camera.main.WorldToScreenPoint(goal.transform.position).x + (Camera.main.pixelWidth * 0.02f) <= Camera.main.pixelWidth)
         {
             moving = false;
         }

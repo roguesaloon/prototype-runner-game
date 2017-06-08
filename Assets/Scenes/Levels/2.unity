@@ -5232,6 +5232,9 @@ MonoBehaviour:
   moving: 0
   multiplier: 0
   coinsCollected: 0
+  goalReached: 0
+  timeSinceGoalReached: 0
+  levelComplete: {fileID: 0}
 --- !u!1 &1550680976
 GameObject:
   m_ObjectHideFlags: 0
@@ -6160,8 +6163,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1939999097}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.33, y: -2.45, z: 3.06}
-  m_LocalScale: {x: 6.0769157, y: 6.0769176, z: 6.0769176}
+  m_LocalPosition: {x: -14.65, y: -2.45, z: 3.06}
+  m_LocalScale: {x: 8.925757, y: 6.0769176, z: 6.0769176}
   m_Children: []
   m_Father: {fileID: 1321377794}
   m_RootOrder: 0
