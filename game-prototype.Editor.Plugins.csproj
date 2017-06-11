@@ -18,7 +18,7 @@
     <UnityBuildTarget>Android:13</UnityBuildTarget>
     <UnityVersion>5.5.4f1</UnityVersion>
     <RootNamespace></RootNamespace>
-    <LangVersion>4</LangVersion>
+    <LangVersion Condition=" '$(VisualStudioVersion)' != '10.0' ">4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -108,9 +108,6 @@
     </Reference>
     <Reference Include="UnityEditor.Android.Extensions">
       <HintPath>Library\UnityAssemblies\UnityEditor.Android.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.WebGL.Extensions">
-      <HintPath>Library\UnityAssemblies\UnityEditor.WebGL.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.WindowsStandalone.Extensions">
       <HintPath>Library\UnityAssemblies\UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
