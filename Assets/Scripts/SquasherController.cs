@@ -21,16 +21,16 @@ public class SquasherController : MonoBehaviour {
 
         if(!retracting)
         {
-            transform.localPosition += Vector3.back * 0.2f;
+            transform.localPosition += Vector3.down * 0.2f;
 
-            if (transform.localPosition.z < -2.8f)
+            if (transform.localPosition.y < -2.8f)
                 retracting = true;
         }
         else
         {
-            transform.localPosition += Vector3.forward * 0.05f;
+            transform.localPosition += Vector3.up * 0.05f;
 
-            if (transform.localPosition.z > -0.6f)
+            if (transform.localPosition.y > -0.5f)
                 retracting = false;
         }
 	}
