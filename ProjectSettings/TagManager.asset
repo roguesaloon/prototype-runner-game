@@ -8,6 +8,7 @@ TagManager:
   - Goal
   - Coin
   - PushBack
+  - Launch
   layers:
   - Default
   - TransparentFX

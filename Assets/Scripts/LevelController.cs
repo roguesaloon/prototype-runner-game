@@ -150,6 +150,14 @@ public class LevelController : MonoBehaviour {
         foreach (var coin in coins)
             coin.GetComponent<Renderer>().enabled = true;
 
+        var rotatingFloors = GameObject.FindObjectsOfType<SeesawController>();
+
+        if(rotatingFloors != null)
+        {
+            foreach(var floor in rotatingFloors)
+                floor.Reset();
+        }
+
         timeSinceGoalReached = 0;
         coinsCollected = 0;
         multiplier = 0;

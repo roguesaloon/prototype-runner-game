@@ -71,6 +71,11 @@ public class PlayerController : MonoBehaviour
             level.levelComplete.transform.FindChild("Coins").GetComponent<Text>().text = level.coinsCollected + "/" + new List<CoinController>(level.transform.FindChild("Coins").GetComponentsInChildren<CoinController>()).FindAll(i => i.gameObject.activeSelf).Count + " Coins Collected";
         }
 
+        if(collision.gameObject.tag == "Launch")
+        {
+            rigidbody.AddForce(10, 10, 0, ForceMode.VelocityChange);
+        }
+
        if(collision.gameObject.tag == "Respawn")
        {
             level.Respawn();
