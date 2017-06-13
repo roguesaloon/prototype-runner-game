@@ -7,6 +7,8 @@ public class SeesawController : MonoBehaviour {
     private bool rotate;
     private Quaternion initialRotation;
 
+    public int rotateTo;
+     
 	// Use this for initialization
 	void Start () {
         rotate = false;
@@ -16,16 +18,14 @@ public class SeesawController : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        
+        if (transform.localRotation.eulerAngles.z < rotateTo)
+        {
+            rotate = false;
+        }
 
         if (rotate)
         {
             transform.Rotate(0, 0, -0.5f);
-
-            if (transform.localRotation.eulerAngles.z < 32)
-            {
-                rotate = false;
-            }
         }
 	}
 
