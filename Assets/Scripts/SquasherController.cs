@@ -14,19 +14,20 @@ public class SquasherController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+        
         if(!retracting)
         {
-            transform.Translate(transform.TransformDirection(Vector3.down * 0.2f));
+            transform.Translate(Vector3.back * 0.2f);
 
-            if (transform.TransformDirection(transform.localPosition).y < -2.8f)
+            if (Vector3.Dot(transform.localPosition, transform.TransformDirection(Vector3.forward)) < -2.8f)
                 retracting = true;
         }
         else
         {
-            transform.Translate(transform.TransformDirection(Vector3.up * 0.05f));
+            transform.Translate(Vector3.forward * 0.05f);
 
-            if (transform.TransformDirection(transform.localPosition).y > -0.5f)
+            if (Vector3.Dot(transform.localPosition, transform.TransformDirection(Vector3.forward)) > -0.5f)
                 retracting = false;
         }
-	}
+    }
 }

@@ -158,6 +158,14 @@ public class LevelController : MonoBehaviour {
                 floor.Reset();
         }
 
+        var launchers = GameObject.FindObjectsOfType<LauncherController>();
+
+        if(launchers != null)
+        {
+            foreach (var launcher in launchers)
+                launcher.Reset();
+        }
+
         timeSinceGoalReached = 0;
         coinsCollected = 0;
         multiplier = 0;

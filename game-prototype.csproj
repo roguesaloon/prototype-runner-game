@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\CoinController.cs" />
+    <Compile Include="Assets\Scripts\LauncherController.cs" />
     <Compile Include="Assets\Scripts\LevelController.cs" />
     <Compile Include="Assets\Scripts\LevelSelectContoller.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
