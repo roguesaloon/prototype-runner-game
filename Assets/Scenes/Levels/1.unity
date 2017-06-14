@@ -1422,6 +1422,15 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114117705643037238, guid: cecaa4c773f9cd0418e0b19ae99b9812,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1764504823683604, guid: cecaa4c773f9cd0418e0b19ae99b9812, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: cecaa4c773f9cd0418e0b19ae99b9812, type: 2}
   m_IsPrefabParent: 0
@@ -4718,12 +4727,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c49687bfe9b406e4ea01662fc710f492, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moving: 0
   multiplier: 0
-  coinsCollected: 0
-  goalReached: 0
   timeSinceGoalReached: 0
-  levelComplete: {fileID: 0}
 --- !u!1 &1550680976
 GameObject:
   m_ObjectHideFlags: 0

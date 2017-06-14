@@ -7,21 +7,17 @@ using UnityEngine.SceneManagement;
 public class LevelController : MonoBehaviour {
 
     [HideInInspector]
-    public bool moving;
-    [HideInInspector]
     public float multiplier;
     [HideInInspector]
-    public int coinsCollected;
-    [HideInInspector]
-    public bool goalReached;
-    [HideInInspector]
     public float timeSinceGoalReached;
-    [HideInInspector]
-    public GameObject levelComplete;
 
-    private Canvas canvas;
-    private Text coinsCollectedText;
-    private GameObject goal;
+    public const float onGoalReachedDelay = 0.25f;
+
+    private bool moving;
+    private int coinsCollected;
+    private GameObject levelCompleteUI;
+    private Text coinsCollectedUIText;
+    private Transform goalTransform;
 
     private AsyncOperation nextLevel;
     private static bool isNextLevelMenuScreen = false;
@@ -30,60 +26,82 @@ public class LevelController : MonoBehaviour {
     private Vector3 initialCamPosition;
     private Rigidbody playerBody;
 
-
-
-    private static void SetNextLevel(ref AsyncOperation nextLevel)
-    {
-        if (!isNextLevelMenuScreen)
-        {
-            nextLevel = LoadLevelInBackground((int.Parse(SceneManager.GetActiveScene().name) + 1).ToString());
-
-            if (nextLevel == null)
-                nextLevel = LoadLevelInBackground(SceneManager.GetActiveScene().name);
-        }
-        else
-        {
-            isNextLevelMenuScreen = false;
-            Camera.main.cullingMask = 0;
-            GameObject.Find("UICanvas").SetActive(false);
-            SceneManager.LoadSceneAsync("LevelSelect");
-        }
-    }
-
-    // Use this for initialization
     void Start () {
 
+        // Set the level to follow this one
+        // This level may be a placeholder
         SetNextLevel(ref nextLevel);
 
-        if (Camera.main.cullingMask == 0) return;
+        // Skip initialisation if nothing is being rendered
+        // If so, this level is probably a placeholder between scenes
+        if (Camera.main.cullingMask == 0)
+            return;
 
+        // The world starts moving
         moving = true;
-        canvas = GameObject.Find("UICanvas").GetComponent<Canvas>();
-        coinsCollectedText = canvas.transform.FindChild("CoinsCollected").GetComponent<Text>();
-        goal = transform.FindChild("Goal").gameObject;
 
-        levelComplete = GameObject.Find("Level Complete");
-        levelComplete.transform.FindChild("ReRun").GetComponent<Button>().onClick.AddListener(() => Respawn());
-        levelComplete.transform.FindChild("NextLevel").GetComponent<Button>().onClick.AddListener(() => GotoNextLevel(ref nextLevel));
-        levelComplete.transform.FindChild("Back").GetComponent<Button>().onClick.AddListener(() => GotoNextLevel(ref nextLevel, true));
+        // Get the UICanvas object
+        var canvasUITransform = GameObject.Find("UICanvas").transform;
 
+        // Find the Coins Collected Text
+        coinsCollectedUIText = canvasUITransform.FindChild("CoinsCollected").GetComponent<Text>();
+
+        // Find Level Complete Dialog and assign appropiate on click listeners for buttons
+        levelCompleteUI = canvasUITransform.FindChild("Level Complete").gameObject;
+        levelCompleteUI.transform.FindChild("ReRun").GetComponent<Button>().onClick.AddListener(() => Respawn());
+        levelCompleteUI.transform.FindChild("NextLevel").GetComponent<Button>().onClick.AddListener(() => GotoNextLevel(ref nextLevel));
+        levelCompleteUI.transform.FindChild("Back").GetComponent<Button>().onClick.AddListener(() => GotoNextLevel(ref nextLevel, true));
+
+        // Find the goal object
+        goalTransform = transform.FindChild("Goal");
+
+        // Get the rigidbody attached to the player
         playerBody = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>();
+
+        // Get the position the player and the camera start at
         initialPlayerPosition = playerBody.transform.position;
         initialCamPosition = Camera.main.transform.position;
+
+        // Reset everything to default state
         Respawn();
     }
 
     void Update () {
 
-        if (Camera.main.cullingMask == 0) return;
+        // Don't Update if nothing is being rendered
+        // If so, this level is probably a placeholder between scenes
+        if (Camera.main.cullingMask == 0)
+            return;
 
-        coinsCollectedText.text = "Coins Collected: " + coinsCollected;
-
-        if (goalReached && timeSinceGoalReached > 0.3f)
+        // When the goal has been reached
+        // Stop the player moving and animating
+        // And show the level complete dialog
+        // Don't continue updating after reaching the goal
+        if(timeSinceGoalReached > (onGoalReachedDelay + 0.5f + Time.deltaTime))
         {
-                levelComplete.SetActive(true);
+            return;
+        }
+        else if (timeSinceGoalReached > onGoalReachedDelay)
+        {
+            playerBody.velocity = Vector3.zero;
+            playerBody.gameObject.GetComponent<Animator>().SetFloat("Forward", 0);
+            DisplayCollectedCoins();
+            levelCompleteUI.SetActive(true);
         }
 
+        // On Escape or Back being pressed
+        // The next level is a menu scene, switch to it
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            GotoNextLevel(ref nextLevel, true);
+        }
+
+        // Move everything approiately
+        MoveLevelPlayerCamera();
+    }
+
+    private void MoveLevelPlayerCamera()
+    {
         if ((Camera.main.WorldToScreenPoint(playerBody.transform.position).x >= Camera.main.pixelWidth * 0.66f) && moving)
         {
             multiplier = 1.5f;
@@ -109,28 +127,67 @@ public class LevelController : MonoBehaviour {
             Camera.main.transform.position += 2 * Vector3.left;
         }
 
-        if (Camera.main.WorldToScreenPoint(goal.transform.position).x + (Camera.main.pixelWidth * 0.02f) <= Camera.main.pixelWidth)
+        if (Camera.main.WorldToScreenPoint(goalTransform.position).x + (Camera.main.pixelWidth * 0.02f) <= Camera.main.pixelWidth)
         {
             moving = false;
         }
 
         if (moving)
-            transform.position += Vector3.left * 0.08f * multiplier;
-    }
-
-    private static AsyncOperation LoadLevelInBackground(string level)
-    {
-        if (Application.CanStreamedLevelBeLoaded(level))
         {
-            var loadScene = SceneManager.LoadSceneAsync(level);
-            loadScene.allowSceneActivation = false;
-            return loadScene;
+            transform.position += Vector3.left * 0.08f * multiplier;
         }
-
-        return null;
     }
 
-    public static void GotoNextLevel(ref AsyncOperation nextLevel, bool? isMenuScreen = null)
+    public void CollectCoin(int? collectedCoins = null)
+    {
+        if (collectedCoins != null)
+            coinsCollected = (int)collectedCoins;
+
+        coinsCollected++;
+        coinsCollectedUIText.text = "Coins Collected: " + coinsCollected;
+    }
+
+    public int DisplayCollectedCoins()
+    {
+        var finalCoinCountText = levelCompleteUI.transform.FindChild("Coins").GetComponent<Text>();
+        var allCoinsList = new List<CoinController>(transform.FindChild("Coins").GetComponentsInChildren<CoinController>());
+
+        finalCoinCountText.text = coinsCollected + "/" + allCoinsList.FindAll(i => i.gameObject.activeSelf).Count + " Coins Collected";
+
+        return coinsCollected;
+    }
+
+    private static void SetNextLevel(ref AsyncOperation nextLevel)
+    {
+        System.Func<string, AsyncOperation> LoadLevelInBackground = (string level) =>
+        {
+            if (Application.CanStreamedLevelBeLoaded(level))
+            {
+                var loadScene = SceneManager.LoadSceneAsync(level);
+                loadScene.allowSceneActivation = false;
+                return loadScene;
+            }
+
+            return null;
+        };
+
+        if (!isNextLevelMenuScreen)
+        {
+            nextLevel = LoadLevelInBackground((int.Parse(SceneManager.GetActiveScene().name) + 1).ToString());
+
+            if (nextLevel == null)
+                nextLevel = LoadLevelInBackground(SceneManager.GetActiveScene().name);
+        }
+        else
+        {
+            isNextLevelMenuScreen = false;
+            Camera.main.cullingMask = 0;
+            GameObject.Find("UICanvas").SetActive(false);
+            SceneManager.LoadSceneAsync("LevelSelect");
+        }
+    }
+
+    private static void GotoNextLevel(ref AsyncOperation nextLevel, bool? isMenuScreen = null)
     {
         if (isMenuScreen != null)
             isNextLevelMenuScreen = (bool)isMenuScreen;
@@ -141,25 +198,25 @@ public class LevelController : MonoBehaviour {
 
     public void Respawn()
     {
-        levelComplete.SetActive(false);
+        levelCompleteUI.SetActive(false);
         transform.position = new Vector3(0.6f, -0.5f, -0.4f);
         moving = true;
-        goalReached = false;
 
         var coins = transform.FindChild("Coins").GetComponentsInChildren<CoinController>();
         foreach (var coin in coins)
             coin.GetComponent<Renderer>().enabled = true;
 
-        var rotatingFloors = GameObject.FindObjectsOfType<SeesawController>();
+        var levelExtras = GameObject.FindObjectsOfType<LevelExtrasType>();
 
-        if(rotatingFloors != null)
+        if(levelExtras != null)
         {
-            foreach(var floor in rotatingFloors)
-                floor.Reset();
+            foreach(var extra in levelExtras)
+                extra.Reset();
         }
 
+        CollectCoin(-1);
+
         timeSinceGoalReached = 0;
-        coinsCollected = 0;
         multiplier = 0;
         playerBody.velocity = Vector3.zero;
         playerBody.angularVelocity = Vector3.zero;

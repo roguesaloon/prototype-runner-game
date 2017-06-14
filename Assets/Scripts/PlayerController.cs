@@ -15,38 +15,47 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        // Get object animator/rigidbody
         animator = GetComponent<Animator>();
         rigidbody = GetComponent<Rigidbody>();
+
+        // Get reference to the level being played
         level = GameObject.Find("Level").GetComponent<LevelController>();
     }
 
     private void Update()
     {
-        if (level.goalReached) return;
+        // Don't update if the goal has been reached
+        if (level.timeSinceGoalReached > LevelController.onGoalReachedDelay + 0.2f)
+            return;
 
+        // Let the player jump if not already jumping
         if ((CrossPlatformInputManager.GetButtonDown("Jump") || Input.GetMouseButtonDown(0)) && !jumping)
         {
             rigidbody.velocity += Vector3.up * 7.5f;
             jumping = true;
         }
 
+        // Animate and move the player when not jumping
         if (!jumping)
         {
             animator.SetFloat("Forward", 1);
             rigidbody.AddForce(Vector3.right * 4);     
         }
-        else
+        else    // Disable animation, and slow down level move speed when jumping 
         {
             animator.SetFloat("Forward", 0);
             level.multiplier = 0.7f;
         }
 
+        // Sets lower limits for player velocity
         if (rigidbody.velocity.x < 0)
         {
             rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, rigidbody.velocity.z);
         }
 
-        if(rigidbody.velocity.x > 6)
+        // Sets upper limits for player velocity
+        if (rigidbody.velocity.x > 6)
         {
             rigidbody.velocity = new Vector3(6, rigidbody.velocity.y, rigidbody.velocity.z);
         }
@@ -54,31 +63,23 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionStay(Collision collision)
     {
+        // When goal is reached increase timer, for slight delay
         if(collision.gameObject.tag == "Goal")
             level.timeSinceGoalReached += Time.deltaTime;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-       if(collision.gameObject.tag == "Ground")
-           jumping = false;
+        // Trigger actions on tagged collisions
 
-        if (collision.gameObject.tag == "Goal")
-        {
-            rigidbody.velocity = Vector3.zero;
-            animator.SetFloat("Forward", 0);
-            level.goalReached = true;
-            level.levelComplete.transform.FindChild("Coins").GetComponent<Text>().text = level.coinsCollected + "/" + new List<CoinController>(level.transform.FindChild("Coins").GetComponentsInChildren<CoinController>()).FindAll(i => i.gameObject.activeSelf).Count + " Coins Collected";
-        }
+
+        if(collision.gameObject.tag == "Ground")
+            jumping = false;
 
         if(collision.gameObject.tag == "Launch")
-        {
             rigidbody.AddForce(10, 10, 0, ForceMode.VelocityChange);
-        }
 
-       if(collision.gameObject.tag == "Respawn")
-       {
-            level.Respawn();
-       }
+        if(collision.gameObject.tag == "Respawn")
+                level.Respawn();
     }
 }

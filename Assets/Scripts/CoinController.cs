@@ -33,7 +33,7 @@ public class CoinController : MonoBehaviour {
 
         if (collider.tag == "Player")
         {
-            level.coinsCollected++;
+            level.CollectCoin();
             renderer.enabled = false;
         }
     }

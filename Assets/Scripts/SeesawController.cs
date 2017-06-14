@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SeesawController : MonoBehaviour {
+public class SeesawController : LevelExtrasType {
 
     private bool rotate;
     private Quaternion initialRotation;
@@ -29,7 +29,7 @@ public class SeesawController : MonoBehaviour {
         }
 	}
 
-    public void Reset()
+    public override void Reset()
     {
         transform.rotation = initialRotation;
     }
